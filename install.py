@@ -864,8 +864,8 @@ Install the {0} package.
         raise NotImplementedError('Implement this method.')
 
 
-class FedoraInstaller(Installer):
-    """A class to install RPM Python binding on Fedora base OS."""
+class NativeRpmInstaller(Installer):
+    """ A class to install RPM python bindings on OS with native RPM. """
 
     def __init__(self, rpm_py_version, python, rpm, **kwargs):
         """Initialize this class."""
@@ -874,6 +874,26 @@ class FedoraInstaller(Installer):
         self.package_sys_name = 'RPM'
         self.pacakge_popt_name = 'popt'
         self.pacakge_popt_devel_name = 'popt-devel'
+
+    def _is_popt_installed(self):
+        # overrided method.
+        return self.rpm.is_package_installed(self.pacakge_popt_name)
+
+    def _is_popt_devel_installed(self):
+        # overrided method.
+        return self.rpm.is_package_installed(self.pacakge_popt_devel_name)
+
+    def _download_and_extract_popt_devel(self):
+        # overrided method.
+        self.rpm.download_and_extract('popt-devel')
+
+
+class FedoraInstaller(NativeRpmInstaller):
+    """A class to install RPM Python binding on Fedora base OS."""
+
+    def __init__(self, rpm_py_version, python, rpm, **kwargs):
+        """Initialize this class."""
+        NativeRpmInstaller.__init__(self, rpm_py_version, python, rpm, **kwargs)
 
     def run(self):
         """Run install main logic."""
@@ -993,18 +1013,6 @@ when a RPM download plugin not installed.
     def _is_package_downloadable(self):
         # overrided method.
         return self.rpm.is_downloadable()
-
-    def _is_popt_installed(self):
-        # overrided method.
-        return self.rpm.is_package_installed(self.pacakge_popt_name)
-
-    def _is_popt_devel_installed(self):
-        # overrided method.
-        return self.rpm.is_package_installed(self.pacakge_popt_devel_name)
-
-    def _download_and_extract_popt_devel(self):
-        # overrided method.
-        self.rpm.download_and_extract('popt-devel')
 
     def _predict_rpm_py_package_names(self):
         # Refer the rpm Fedora pacakge
